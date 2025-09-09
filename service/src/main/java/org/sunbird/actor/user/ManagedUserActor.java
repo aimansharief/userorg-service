@@ -119,7 +119,6 @@ public class ManagedUserActor extends UserBaseActor {
     Map<String, Object> managedByInfo =
         UserUtil.validateManagedByUser(managedBy, actorMessage.getRequestContext());
     convertValidatedLocationCodesToIDs(userMap, actorMessage.getRequestContext());
-    ignoreOrAcceptFrameworkData(userMap, managedByInfo, actorMessage.getRequestContext());
     String userId = ProjectUtil.generateUniqueId();
     userMap.put(JsonKey.ID, userId);
     userMap.put(JsonKey.USER_ID, userId);
@@ -155,18 +154,6 @@ public class ManagedUserActor extends UserBaseActor {
     }
     sender().tell(response, sender());
     generateUserTelemetry(userMap, actorMessage, userId, JsonKey.CREATE);
-  }
-
-  private void ignoreOrAcceptFrameworkData(
-      Map<String, Object> userRequestMap,
-      Map<String, Object> userDbRecord,
-      RequestContext context) {
-    try {
-      UserUtil.validateUserFrameworkData(userRequestMap, userDbRecord, context);
-    } catch (ProjectCommonException pce) {
-      // Could be that the framework id or value - is invalid, missing.
-      userRequestMap.remove(JsonKey.FRAMEWORK);
-    }
   }
 
   private void saveUserOrgInfo(Map<String, Object> userMap, RequestContext context) {
